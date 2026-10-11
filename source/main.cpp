@@ -36,6 +36,7 @@ extern "C" {
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/mount.h>
 #include <unistd.h>
 #include <ps5/payload.h>
 #include <ps5/kernel.h>
@@ -136,6 +137,17 @@ static int do_jailbreak(pid_t target_pid) {
     return 0;
 }
 
+/* ----- Update blocker (port of etaHEN bootstrapper main.cpp) -------------
+ * A downloaded PS5UPDATE.PUP in /update makes the system demand an update
+ * before it mounts extended storage. Delete it and unmount /update. */
+static void block_updates(void) {
+    unlink("/update/PS5UPDATE.PUP");
+    unlink("/update/PS5UPDATE.PUP.net.temp");
+    if (unmount("/update", 0x80000) < 0)
+        unmount("/update", 0);
+    LOG("update blocker: /update cleaned and unmounted");
+}
+
 /* ----- Main loop ---------------------------------------------------------- */
 int main(void) {
     LOG("======================================");
@@ -151,6 +163,8 @@ int main(void) {
     }
     kernel_base = args->kdata_base_addr;
     LOG("kernel_base = 0x%lx", (uintptr_t)kernel_base);
+
+    block_updates();
 
     notif("Lapy JB Daemon active — launch your app");
     LOG("polling %s/<TID>_<NNN>%s every %dms",

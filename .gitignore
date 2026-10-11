@@ -2,6 +2,7 @@
 *.o
 *.d
 *.a
+lapy_jb_daemon.elf
 
 # Python scripts (helpers, not part of release)
 *.py
@@ -22,3 +23,6 @@ __pycache__/
 # OS
 Thumbs.db
 desktop.ini
+
+# Exception for prebuilt libhijacker.a
+!extern/libhijacker/libhijacker.a

@@ -6,7 +6,7 @@
 #include "kthread.hpp"
 #include "../offsets.hpp"
 #include "util.hpp"
-#include <cstdint>
+#include <stdint.h>
 
 extern "C" {
 	#include <ps5/kernel.h>

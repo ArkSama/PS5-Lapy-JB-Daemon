@@ -1,0 +1,45 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 1.2)'
+        required: true
+        default: '1.2'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build via Docker
+        run: bash ./build.sh
+
+      - name: Fix permissions for build artifacts
+        run: sudo chown -R $USER:$USER .
+
+      - name: Rename binary with version
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          mv lapy_jb_daemon.elf lapy_jb_daemon-v${VERSION}.elf
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.event.inputs.version }}
+          name: Release v${{ github.event.inputs.version }}
+          files: lapy_jb_daemon-v${{ github.event.inputs.version }}.elf
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

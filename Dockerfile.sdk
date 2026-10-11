@@ -1,0 +1,42 @@
+# Dockerfile to build the ps5-payload-dev/sdk environment locally
+FROM ubuntu:24.04
+
+# Install dependencies
+# Clang 18 and LLD 18 are required by the SDK
+RUN apt-get update && apt-get install -y \
+    git \
+    cmake \
+    ninja-build \
+    clang-18 \
+    lld-18 \
+    make \
+    python3 \
+    python3-pyelftools \
+    wget \
+    xz-utils \
+    pkg-config \
+    sudo \
+    unzip \
+    xxd \
+    libc++-18-dev \
+    libc++abi-18-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set up Clang 18 as default
+RUN ln -s /usr/bin/clang-18 /usr/bin/clang && \
+    ln -s /usr/bin/clang++-18 /usr/bin/clang++ && \
+    ln -s /usr/bin/ld.lld-18 /usr/bin/ld.lld
+
+# Set up environment
+ENV PS5_PAYLOAD_SDK=/opt/ps5-payload-sdk
+WORKDIR /opt
+
+# Clone the SDK
+RUN git clone https://github.com/ps5-payload-dev/sdk.git ps5-payload-sdk-source
+
+# Build and Install the SDK to /opt/ps5-payload-sdk
+WORKDIR /opt/ps5-payload-sdk-source
+RUN make DESTDIR=/opt/ps5-payload-sdk install
+
+# Set the working directory for subsequent builds
+WORKDIR /src

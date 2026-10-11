@@ -27,7 +27,7 @@ LIBHIJACKER_INC := $(LIBHIJACKER_DIR)/include
 CXXFLAGS := -std=c++20 -Wall -O2 -fno-rtti -fno-exceptions
 CXXFLAGS += -I$(LIBHIJACKER_INC) -Isource
 
-LDFLAGS := -L$(LIBHIJACKER_DIR)
+LDFLAGS		:= -nostdlib++ -Lextern/libhijacker -lhijacker -lkernel_sys -lSceNotification
 LDLIBS  := -lhijacker -lkernel_sys -lSceNotification
 
 OBJS := source/main.o source/offsets_v940.o
